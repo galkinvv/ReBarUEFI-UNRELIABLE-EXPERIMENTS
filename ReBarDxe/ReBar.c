@@ -208,16 +208,10 @@ VOID reBarSetupDevice(EFI_HANDLE handle, EFI_PCI_ROOT_BRIDGE_IO_PROTOCOL_PCI_ADD
         for (UINT8 bar = 0; bar < 6; bar++)
         {
             UINT32 rBarS = pciRebarGetPossibleSizes(pciAddress, epos, vid, did, bar);
-            if (!rBarS)
-                continue;
-            // start with size from fls
-            for (UINT8 n = MIN((UINT8)fls(rBarS), reBarState); n > 0; n--) {
-                // check if size is supported
-                if (rBarS & (1 << n)) {
-                    pciRebarSetSize(pciAddress, epos, bar, n);
-                    break;
-                }
-            }
+	    if (rBarS < 32)
+                continue; //skip small bars
+            // FORCE apply configured reBarState. Results are unpredictable
+	    pciRebarSetSize(pciAddress, epos, bar, reBarState);
         }
     }
 }
